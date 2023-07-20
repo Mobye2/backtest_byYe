@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 def kd_passavation(data, x):  # kd值三日鈍化判斷
     if data.at[x, 'k'] > 0.8 and data.at[x-1, 'k'] > 0.8 and data.at[x-2, 'k'] > 0.8 and data.at[x-3, 'k'] < 0.8:
         kd = True
@@ -17,7 +20,7 @@ def low_shadow(data, x, thres):  # 下影線 thres%判斷
     return shadow
 
 
-def up_shadow(data, x,thres):  # 上影線3%判斷
+def up_shadow(data, x, thres):  # 上影線3%判斷
     higherprice = max(data.at[x, "開盤價"], data.at[x, "收盤價"])
     upshadow = (data.at[x, "最高價"]-higherprice) / data.at[x, "開盤價"]
     thres = thres*0.01
@@ -26,15 +29,6 @@ def up_shadow(data, x,thres):  # 上影線3%判斷
     else:
         upshadowj = False
     return upshadowj
-
-
-def volume_explode(data, x, multi): #大量交易，大於平均交易量multi倍
-    ave_volume = data['成交股數'].mean()
-    if data.at[x, "成交股數"] > multi*ave_volume:  # 低於平均交易量的n倍
-        explode = True
-    else:
-        explode = False
-    return explode
 
 
 def MAlowsupport(data, x):
@@ -75,8 +69,18 @@ def MAcross(data, x, magapday):  # x為日期 n為20MA-5MA，由負轉正的追�
         MAGapJ = False
     return MAGapJ
 
-def Cross(colume1,colume2,data,index,days):
-    judge=False
-    if all(data.at[index-j, colume1] < data.at[index-j, colume2] for j in range(1, days)) and data.at[index,colume1]>data.at[index,colume2]:
-        judge=True
+
+def Cross(data, index, colume1, colume2, days):  # 連續days後交叉,colume1逐漸超越colume2
+    judge = False
+    if all(0 > (data.at[index-1, colume1]-data.at[index-1, colume2]) > (data.at[index-1-j, colume1]-data.at[index-1-j, colume2]) for j in range(1, days)) and data.at[index, colume1] > data.at[index, colume2]:
+        judge = True
     return judge
+
+
+def volume_explode(data: pd.DataFrame, index, multi):  # 大量交易，大於平均交易量multi倍
+    ave_volume = data.loc[:index, 'Trading_Volume'].tail(40).mean()
+    if data.at[index, "Trading_Volume"] > multi*ave_volume:  # 低於平均交易量的n倍
+        explode = True
+    else:
+        explode = False
+    return explode

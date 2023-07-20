@@ -1,1 +1,2 @@
-Datapath='C:/Users/wayneya/Desktop/STcode/CollectData/DataCollect/Data'
+Datapath = 'C:/Users/wayne/Desktop/ST/DataCollection'
+buy_strategy_combination = []
